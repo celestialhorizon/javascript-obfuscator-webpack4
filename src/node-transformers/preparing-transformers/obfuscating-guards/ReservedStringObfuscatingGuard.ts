@@ -40,6 +40,17 @@ export class ReservedStringObfuscatingGuard implements IObfuscatingGuard {
             return !this.isReservedString(node.value)
                 ? ObfuscatingGuardResult.Transform
                 : ObfuscatingGuardResult.Ignore;
+        }else if ( // bp added reserved string for template literal
+            this.options.reservedStrings.length &&
+            NodeGuards.isTemplateLiteralNode(node)
+        ) {
+            const allQuasisMatch = node.quasis.every(quasi =>
+                this.isReservedString(quasi.value.cooked || '')
+            );
+
+            return allQuasisMatch
+                ? ObfuscatingGuardResult.Ignore
+                : ObfuscatingGuardResult.Transform;
         }
 
         return ObfuscatingGuardResult.Transform;
